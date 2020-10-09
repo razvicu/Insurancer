@@ -3,11 +3,12 @@ var dbm = require('./dbmanager');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
 
+const {SENDER_EMAIL, DEST_EMAIL, DB_PWD} = require('./config');
+
 
 module.exports = {
     runScheduler: async function() {
-        //schedule.scheduleJob('* * * * * *', sendMail);
-        sendMail();
+        schedule.scheduleJob('0 0 1 * * *', sendMail);
     }
 };
 
@@ -64,23 +65,35 @@ async function sendMail() {
     let transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-          user: process.env.SENDER_EMAIL,
-          pass: process.env.DB_PWD + 'Ax'
+          user: SENDER_EMAIL,
+          pass: DB_PWD + 'Ax'
         }
       });
 
     let mailOptions = {
-        from: process.env.SENDER_EMAIL,
-        to: process.env.DEST_EMAIL,
+        from: SENDER_EMAIL,
+        to: DEST_EMAIL,
         subject: 'Lista asigurarilor ce expira curand',
         html: htmlFor3Days + htmlFor7Days
     };
 
-    transporter.sendMail(mailOptions, function(error, info){
+    let res = '';
+
+    transporter.sendMail(mailOptions, async function(error, info){
         if (error) {
             console.log(error);
         } else {
             console.log('Email sent: ' + info.response);
+            session = await dbm.initSession();
+            let db = await session.getSchema('insurances');
+            let statusTable = await db.getTable('status');
+            await statusTable.insert(['text']).values(info.response).execute().catch((err) => {
+                console.log(err);
+            })
         }
     });
+
+    session.close();
+
+    return res;
 }

@@ -4,6 +4,7 @@ const getURL = 'http://localhost:9000/api/insurances/';
 const postURL = 'http://localhost:9000/api/createInsurance/';
 const deleteURL = 'http://localhost:9000/api/deleteInsurance/';
 const putURL = 'http://localhost:9000/api/editInsurance/';
+const statusURL = 'http://localhost:9000/api/status';
 
 class InsuranceService {
     static getInsurances() {
@@ -45,6 +46,17 @@ class InsuranceService {
                 resolve(res);
             })
             .catch((err)=> {
+                reject(err);
+            })
+        });
+    }
+
+    static getStatus() {
+        return new Promise ((resolve, reject) => {
+            axios.get(statusURL).then((res) => {
+                resolve(res);
+            })
+            .catch((err) => {
                 reject(err);
             })
         });

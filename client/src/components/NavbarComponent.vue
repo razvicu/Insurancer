@@ -1,16 +1,14 @@
 <template>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand">Insurancer</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                <a class="nav-item nav-link active" ><router-link to="/">Home</router-link> <span class="sr-only">(current)</span></a>
-                <a class="nav-item nav-link"><router-link to="/add">Adauga</router-link></a>
-            </div>
-        </div>
-    </nav>
+    <b-navbar type="light" variant="light">
+        <b-navbar-brand>Insurancer</b-navbar-brand>
+        <b-collapse id="nav-collapse" is-nav>
+            <b-navbar-nav>
+                <b-nav-item><router-link to="/">Home</router-link></b-nav-item>
+                <b-nav-item><router-link to="/add">Adauga</router-link></b-nav-item>
+                <b-nav-item><router-link to="/status">Status</router-link></b-nav-item>
+            </b-navbar-nav>
+        </b-collapse>
+    </b-navbar>
 </template>
 
 <script>

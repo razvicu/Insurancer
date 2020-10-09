@@ -2,6 +2,7 @@ import Vue from "vue"
 import VueRouter from "vue-router"
 import AddInsuranceComponent from "../components/AddInsuranceComponent"
 import ListInsurancesComponent from "../components/ListInsurancesComponent"
+import StatusComponent from "../components/StatusComponent"
 
 Vue.use(VueRouter)
 
@@ -19,6 +20,11 @@ const routes = [
         path: '/home',
         name: "Home",
         component: ListInsurancesComponent
+    },
+    {
+        path: '/status',
+        name: "Status",
+        component: StatusComponent
     }
 ]
 

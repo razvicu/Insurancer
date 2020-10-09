@@ -1,9 +1,10 @@
 var mysqlx = require('@mysql/xdevapi');
+const {DB_HOST, DB_PORT, DB_USER, DB_PWD} = require('./config');
 
 async function initSession() {
     let session = await mysqlx.getSession( {
-        host: 'localhost', port: 33060,
-        user: process.env.DB_USER, password: process.env.DB_PWD 
+        host: DB_HOST, port: DB_PORT,
+        user: DB_USER, password: DB_PWD 
     });    
     return session;
 }

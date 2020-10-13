@@ -1,10 +1,13 @@
 import axios from 'axios';
 
-const getURL = 'http://localhost:9000/api/insurances/';
-const postURL = 'http://localhost:9000/api/createInsurance/';
-const deleteURL = 'http://localhost:9000/api/deleteInsurance/';
-const putURL = 'http://localhost:9000/api/editInsurance/';
-const statusURL = 'http://localhost:9000/api/status';
+const uri = process.env.VUE_APP_PRODUCTION == "TRUE" ? '18.193.23.31' : 'localhost';
+const port = (uri == 'localhost') ? process.env.VUE_APP_PORT : '';
+
+const getURL = `http://${uri}` + port + `/api/insurances/`;
+const postURL = `http://${uri}` + port + `/api/createInsurance/`;
+const deleteURL = `http://${uri}` + port + `/api/deleteInsurance/`;
+const putURL = `http://${uri}` + port + `/api/editInsurance/`;
+const statusURL = `http://${uri}` + port + `/api/status`;
 
 class InsuranceService {
     static getInsurances() {

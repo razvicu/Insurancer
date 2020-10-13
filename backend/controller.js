@@ -26,21 +26,22 @@ createInsurance = async (req, res, _) => {
 
     if (!validateInsurance(req.body)) {
         status = 400;
-        res.status(status).send("Error validating the input!");
+        res.status(status).send("Eroare la validarea datelor!");
+        return;
     }
 
     console.log(req.data);
     await insurancesTable.insert(['insuredName', 'licensePlate', 'phoneNumber', 'expirationDate'])
-                .values(req.body.insuredName, req.body.licensePlate, req.body.phoneNumber, req.body.expirationDate)
+                .values(req.body.insuredName, req.body.licensePlate.toUpperCase(), req.body.phoneNumber, req.body.expirationDate)
                 .execute().catch((err)  => {
         console.log(err);
         status = 400;
     });
     session.close();
     if (status == 200) {
-        res.send(JSON.stringify('Insurance added succesfully!'));
+        res.send(JSON.stringify('Asigurarea a fost adaugata cu succes!'));
     } else {
-        res.status(400).send('There was a problem!');
+        res.status(400).send('A aparut o problema!');
     }
 }
 
@@ -54,7 +55,8 @@ editInsurance = async (req, res, _) => {
 
     if (!validateInsurance(req.body)) {
         status = 400;
-        res.status(status).send("Error validating the input!");
+        res.status(status).send("Eroare la validarea datelor!");
+        return;
     }
 
     req.body.expirationDate = req.body.expirationDate.substring(0,10);
@@ -72,9 +74,9 @@ editInsurance = async (req, res, _) => {
     });
     session.close();
     if (status == 200) {
-        res.send(JSON.stringify('Insurance edited succesfully!'));
+        res.send(JSON.stringify('Asigurarea a fost modificata cu succes!'));
     } else {
-        res.status(400).send('There was a problem!');
+        res.status(400).send('A aparut o problema!');
     }
 }
 
@@ -88,7 +90,8 @@ deleteInsurance = async (req, res, _) => {
 
     if (!validators.validateId(req.body)) {
         status = 400;
-        res.status(status).send("Error validating the id!");
+        res.status(status).send("Eroare la validarea datelor!");
+        return;
     }
 
     await insurancesTable.delete().where("IID = :id")
@@ -99,9 +102,9 @@ deleteInsurance = async (req, res, _) => {
 
     session.close();
     if (status == 200) {
-        res.send(JSON.stringify('Insurance deleted succesfully!'));
+        res.send(JSON.stringify('Asigurarea a fost stearsa!'));
     } else {
-        res.status(400).send('There was a problem!');
+        res.status(400).send('A aparut o problema!');
     }
 }
 
@@ -128,7 +131,7 @@ getAllInsurances = async (req, res, _) => {
     res.send(JSON.stringify(ans));
 }
 
-getStatus = async (req, res, _) => {
+getStatus = async (_, res, __) => {
     console.log("GET request for status");
     let session = await dbm.initSession();
     let db = await session.getSchema('insurances');

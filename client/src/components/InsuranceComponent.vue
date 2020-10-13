@@ -5,12 +5,11 @@
         <td class="col-3">{{ phoneNumber }}</td>
         <td class="col-2">{{ expirationDate | formatDate }}</td>
         <td class="col-1" v-on:click="editInsurance"><font-awesome-icon icon="pen"/></td>
-        <td class="col-1" v-on:click="deleteInsurance"><font-awesome-icon icon="times"/></td>
+        <td class="col-1" v-on:click="deleteInsurancePrompt"><font-awesome-icon icon="times"/></td>
     </tr>
 </template>
 
 <script>
-import InsuranceService from '../InsuranceService';
 
 export default {
     name: "InsuranceComponent",
@@ -41,14 +40,8 @@ export default {
         editInsurance() {
             this.$emit('edit-insurance');
         },
-        deleteInsurance() {
-            console.log(this.id);
-            InsuranceService.deleteInsurance(this.id).then((res) => {
-                console.log(res);
-                this.$emit('remove-insurance');
-            }).catch((err) => {
-                console.log(err);
-            });
+        deleteInsurancePrompt() {
+            this.$emit('delete-insurance-prompt');
         }
     }
 }

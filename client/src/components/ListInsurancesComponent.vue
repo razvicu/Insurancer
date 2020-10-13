@@ -6,31 +6,42 @@
         <div class="insurance_type">
             <div class="form-group">
                 <label for="insuredName">Nume</label>
-                <input type="text" class="form-control" v-model="insurances[editIndex].insuredName" id="insuredName" name="insuredName" placeholder="Introdu numele asiguratului">  
-                <span class="error" v-if="!validateInsuredName(insurances[editIndex].insuredName)">{{errmsg.insuredName}}</span>
+                <input type="text" class="form-control" v-model="insurances[insuranceIndex].insuredName" id="insuredName" name="insuredName" placeholder="Introdu numele asiguratului">  
+                <span class="error" v-if="!validateInsuredName(insurances[insuranceIndex].insuredName)">{{errmsg.insuredName}}</span>
             </div>
             <div class="form-group">
                 <label for="licensePlate">Numar de inmatriculare</label>
-                <input type="text" class="form-control" v-model="insurances[editIndex].licensePlate" id="licensePlate" name="licensePlate" placeholder="Introdu numarul de inmatriculare al asiguratului">  
-                <span class="error" v-if="!validateLicensePlate(insurances[editIndex].licensePlate)">{{errmsg.licensePlate}}</span>
+                <input type="text" class="form-control" v-model="insurances[insuranceIndex].licensePlate" id="licensePlate" name="licensePlate" placeholder="Introdu numarul de inmatriculare al asiguratului">  
+                <span class="error" v-if="!validateLicensePlate(insurances[insuranceIndex].licensePlate)">{{errmsg.licensePlate}}</span>
             </div>
             <div class="form-group">
                 <label for="phoneNumber">Telefon</label>
-                <input type="text" class="form-control" v-model="insurances[editIndex].phoneNumber" id="phoneNumber" name="phoneNumber" placeholder="Introdu numarul de telefon asiguratului">  
-                <span class="error" v-if="!validatePhoneNumber(insurances[editIndex].phoneNumber)">{{errmsg.phoneNumber}}</span>
+                <input type="text" class="form-control" v-model="insurances[insuranceIndex].phoneNumber" id="phoneNumber" name="phoneNumber" placeholder="Introdu numarul de telefon asiguratului">  
+                <span class="error" v-if="!validatePhoneNumber(insurances[insuranceIndex].phoneNumber)">{{errmsg.phoneNumber}}</span>
             </div>
             <div class="form-group">
                 <label>Data expirarii</label>
                 <div>
-                    <date-picker v-model="insurances[editIndex].expirationDate" valueType="format"></date-picker>
+                    <date-picker v-model="insurances[insuranceIndex].expirationDate" valueType="format"></date-picker>
                 </div>
-                <span class="error" v-if="!validateExpirationDate(insurances[editIndex].expirationDate)">{{errmsg.expirationDate}}</span>
+                <span class="error" v-if="!validateExpirationDate(insurances[insuranceIndex].expirationDate)">{{errmsg.expirationDate}}</span>
 
             </div>
         </div>
       </div>
-      <b-button class="mt-3" variant="outline-primary" block v-on:click="saveInsurance();hideModal()">Salveaza</b-button>
+      <b-button class="mt-3" variant="outline-primary" block v-on:click="saveInsurance();hideModal('editModal')">Salveaza</b-button>
     </b-modal>
+    <div>
+        <b-modal ref="deleteModal" hide-footer title="Atentie!">
+            <div class="d-block text-center">
+                <div class="insurance_type">
+                    <p>Esti sigur ca doresti sa stergi asigurarea?</p>
+                    <p>{{insurances[insuranceIndex].insuredName}} -- {{insurances[insuranceIndex].licensePlate}} -- {{insurances[insuranceIndex].expirationDate | formatDate}}</p>
+                </div>
+            </div>
+            <b-button class="mt-3" variant="outline-danger" block v-on:click="deleteInsurance(insuranceIndex);hideModal('deleteModal')">Da</b-button>
+        </b-modal>
+    </div>
     </div>
     <table class="table">
         <thead>
@@ -40,7 +51,8 @@
                 <th v-on:click="sort('phoneNumber')" class="col-3">Numar de telefon</th>
                 <th v-on:click="sort('expirationDate')" class="col-2">
                     Data expirarii
-                    <font-awesome-icon v-bind:icon="sortedIcon"/></th>
+                    <font-awesome-icon v-bind:icon="sortedIcon"/>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -52,7 +64,7 @@
                 :phone-number = "insurance.phoneNumber"
                 :expiration-date = "insurance.expirationDate"
                 :key = "idx"
-                v-on:remove-insurance="deleteComponent(idx)"
+                v-on:delete-insurance-prompt="showModal('deleteModal');setInsuranceIndex(idx)"
                 v-on:edit-insurance="editInsurance(idx)"> 
             </InsuranceComponent> 
         </tbody>
@@ -76,7 +88,7 @@ export default {
         return {
             insurances: [{id: 0, insuredName: '', licensePlate: '', phoneNumber: '', expirationDate: ''}],
             sortUp: -1,
-            editIndex: 0,
+            insuranceIndex: 0,
             error: "",
             errmsg: {}
         }
@@ -85,11 +97,11 @@ export default {
         this.getAllInsurances();
     },
     methods: {
-        showModal() {
-            this.$refs['editModal'].show()
+        showModal(modal) {
+            this.$refs[modal].show();
         },
-        hideModal() {
-            this.$refs['editModal'].hide()
+        hideModal(modal) {
+            this.$refs[modal].hide();
         },
         async getAllInsurances() {
             await InsuranceService.getInsurances().then((res) => {
@@ -143,11 +155,11 @@ export default {
         },
         saveInsurance() {
             const insurance = {
-                id: this.insurances[this.editIndex].id,
-                insuredName: this.insurances[this.editIndex].insuredName,
-                licensePlate: this.insurances[this.editIndex].licensePlate,
-                phoneNumber: this.insurances[this.editIndex].phoneNumber,
-                expirationDate: this.insurances[this.editIndex].expirationDate
+                id: this.insurances[this.insuranceIndex].id,
+                insuredName: this.insurances[this.insuranceIndex].insuredName,
+                licensePlate: this.insurances[this.insuranceIndex].licensePlate,
+                phoneNumber: this.insurances[this.insuranceIndex].phoneNumber,
+                expirationDate: this.insurances[this.insuranceIndex].expirationDate
             };
             let shouldReturn = false;
             Object.keys(insurance).forEach((key) => {
@@ -167,11 +179,19 @@ export default {
             });
         },
         editInsurance(idx) {
-            this.editIndex = idx;
-            this.showModal();
+            this.setInsuranceIndex(idx);
+            this.showModal('editModal');
         },
-        deleteComponent(idx) {
-            this.insurances.splice(idx, 1);
+        setInsuranceIndex(idx) {
+            this.insuranceIndex = idx;
+        },
+        deleteInsurance(idx) {
+            InsuranceService.deleteInsurance(this.insurances[idx].id).then((res) => {
+                console.log(res);
+                this.insurances.splice(idx, 1);
+            }).catch((err) => {
+                console.log(err);
+            });
         },
         displayMessage(reqSucceeded, resMessage, timeOut) {
             this.requestSucceded = reqSucceeded;

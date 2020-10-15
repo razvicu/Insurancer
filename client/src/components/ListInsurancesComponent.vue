@@ -1,6 +1,8 @@
 <template>
 <div>
     <div>
+    <template v-if="!insurances[insuranceIndex]"></template>
+    <template v-else>
     <b-modal ref="editModal" hide-footer title="Modifica asiguratul">
       <div class="d-block text-center">
         <div class="insurance_type">
@@ -39,10 +41,11 @@
                     <p>{{insurances[insuranceIndex].insuredName}} -- {{insurances[insuranceIndex].licensePlate}} -- {{insurances[insuranceIndex].expirationDate | formatDate}}</p>
                 </div>
             </div>
-            <b-button class="mt-3" variant="outline-danger" block v-on:click="deleteInsurance(insuranceIndex);hideModal('deleteModal')">Da</b-button>
+            <b-button class="mt-3" variant="outline-danger" block v-on:click="deleteInsurance();hideModal('deleteModal')">Da</b-button>
         </b-modal>
     </div>
-    </div>
+    </template>
+    </div> 
     <table class="table">
         <thead>
             <tr class="row">
@@ -56,7 +59,7 @@
             </tr>
         </thead>
         <tbody>
-            <InsuranceComponent 
+            <InsuranceComponent
                 v-for = "(insurance, idx) in insurances" 
                 :id = "insurance.id"
                 :insured-name = "insurance.insuredName"
@@ -86,7 +89,7 @@ export default {
     },
     data() {
         return {
-            insurances: [{id: 0, insuredName: '', licensePlate: '', phoneNumber: '', expirationDate: ''}],
+            insurances: [], //[{id: 0, insuredName: '', licensePlate: '', phoneNumber: '', expirationDate: ''}],
             sortUp: -1,
             insuranceIndex: 0,
             error: "",
@@ -108,7 +111,7 @@ export default {
                 for (let i = 0; i < res.length; ++i)
                     this.insurances.push(JSON.parse(res[i]))
             });
-            this.insurances.splice(0,1);
+            //this.insurances.splice(0,1);
         }, 
         sort(filter) {
             if (filter == "expirationDate") {
@@ -185,10 +188,11 @@ export default {
         setInsuranceIndex(idx) {
             this.insuranceIndex = idx;
         },
-        deleteInsurance(idx) {
-            InsuranceService.deleteInsurance(this.insurances[idx].id).then((res) => {
+        deleteInsurance() {
+            InsuranceService.deleteInsurance(this.insurances[this.insuranceIndex].id).then((res) => {
                 console.log(res);
-                this.insurances.splice(idx, 1);
+                this.insurances.splice(this.insuranceIndex, 1);
+                this.insuranceIndex = 0;
             }).catch((err) => {
                 console.log(err);
             });

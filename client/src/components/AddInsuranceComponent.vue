@@ -5,15 +5,15 @@
     </div>
     <div class="container">
         <div class="insurance_upload">
-            <form enctype="multipart/form-data" action="http://127.0.0.1:9000/api/parsePdf" method="POST">
-                    <div class="custom-file">
-                    <input type="file" class="custom-file-input" name="insurance" id="insuranceFile">
-                    <label class="custom-file-label" for="insuranceFile">Alege un fisier</label>
+            <div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" v-on:change="onFileChange" ref="insuranceFile" name="insuranceFile" id="insuranceFile">
+                    <label class="custom-file-label" for="insuranceFile">{{insuranceFileLabel}}</label>
                 </div>
                 <div class="text-center">
                     <button v-on:click="submitPdf" style="margin-top: 20px;" type="submit" class="btn btn-primary">Salveaza</button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     <div class="__spacer"></div>
@@ -74,10 +74,14 @@ export default {
       error: "",
       responseMessage: "",
       requestSucceded: false,
+      insuranceFileLabel: "Adauga un fisier",
       msg: {}
     }
   },
   watch: {
+      insuranceFile(value) {
+          this.insuranceFileLabel = value.name;
+      },
       insuredName(value) {
           this.msg['insuredName'] = validators.validateInsuredName(value);
       },
@@ -88,12 +92,29 @@ export default {
           this.msg['phoneNumber'] = validators.validatePhoneNumber(value);
       },
       expirationDate(value) {
+          console.log(value);
           this.msg['expirationDate'] = validators.validateExpirationDate(value);
       }
   },
   methods: {
+        onFileChange(event) {
+            let file =  event.target.files[0];
+            this.insuranceFileLabel = file.name;
+        },
         async submitPdf() {
-            console.log('submit');
+            let formData = new FormData();
+            let file = this.$refs['insuranceFile'].files[0];
+            formData.append('insuranceFile', file);
+            await InsuranceService.submitInsurancePdf(formData).then((res) => {
+                console.log(res);
+                this.insuredName = res.data.name;
+                this.licensePlate = res.data.licenseNumber;
+                this.phoneNumber = res.data.phoneNumber;
+                this.expirationDate = res.data.expDate.split('.').reverse().join('-');
+            })
+            .catch((err) => {
+                console.log(err);
+            });
         },
         async submitInsurance() {
             const insurance = {

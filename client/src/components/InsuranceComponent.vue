@@ -38,7 +38,7 @@ export default {
     },
     methods: {
         editInsurance() {
-            this.$emit('edit-insurance');
+            this.$emit('edit-insurance-prompt');
         },
         deleteInsurancePrompt() {
             this.$emit('delete-insurance-prompt');

@@ -11,7 +11,7 @@
                     <label class="custom-file-label" for="insuranceFile">{{insuranceFileLabel}}</label>
                 </div>
                 <div class="text-center">
-                    <button v-on:click="submitPdf" style="margin-top: 20px;" type="submit" class="btn btn-primary">Salveaza</button>
+                    <button v-on:click="submitPdf" style="margin-top: 20px;" type="submit" class="btn btn-primary">Incarca</button>
                 </div>
             </div>
         </div>
@@ -159,5 +159,8 @@ export default {
 <style scoped>
 .error {
     color: red;
+}
+.alert {
+    margin-top: 20px;
 }
 </style>

@@ -67,8 +67,8 @@
                 :phone-number = "insurance.phoneNumber"
                 :expiration-date = "insurance.expirationDate"
                 :key = "idx"
-                v-on:delete-insurance-prompt="showModal('deleteModal');setInsuranceIndex(idx)"
-                v-on:edit-insurance="editInsurance(idx)"> 
+                v-on:delete-insurance-prompt="showPrompt('deleteModal', idx)"
+                v-on:edit-insurance-prompt="showPrompt('editModal', idx)"> 
             </InsuranceComponent> 
         </tbody>
     </table>
@@ -181,12 +181,12 @@ export default {
                 console.log(res);
             });
         },
-        editInsurance(idx) {
-            this.setInsuranceIndex(idx);
-            this.showModal('editModal');
-        },
         setInsuranceIndex(idx) {
             this.insuranceIndex = idx;
+        },
+        showPrompt(modal, idx) {
+            this.setInsuranceIndex(idx);
+            this.showModal(modal);
         },
         deleteInsurance() {
             InsuranceService.deleteInsurance(this.insurances[this.insuranceIndex].id).then((res) => {

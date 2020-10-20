@@ -11,6 +11,7 @@ const statusURL = `${uri}status`;
 
 class InsuranceService {
     static getInsurances() {
+        console.log(process.env);
         return new Promise ((resolve,reject) => {
             axios.get(getURL).then((res) => {
                 resolve(res.data);
@@ -32,14 +33,15 @@ class InsuranceService {
         });
     }
 
-    static submitInsurancePdf(insurance) {
+    static submitInsurancePdf(insurance, onUploadProgress) {
         return new Promise ((resolve, reject) => {
             axios.post(postPdfURL, insurance, {
                 headers: {
                     "Content-Type": "multipart/form-data"
-                }})
-                .then((res) => {
-                    resolve(res);
+                },
+                onUploadProgress
+            }).then((res) => {
+                resolve(res);
             })
             .catch((err) => {
                 reject(err);

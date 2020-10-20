@@ -13,7 +13,7 @@ import { BootstrapVue } from 'bootstrap-vue'
 import VueMeta from 'vue-meta'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTimes, faPen, faSort, faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons'
+import { faTimes, faPen, faSort, faSortDown, faSortUp, faInfoCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faTimes)
@@ -21,6 +21,7 @@ library.add(faPen)
 library.add(faSort)
 library.add(faSortDown)
 library.add(faSortUp)
+library.add(faInfoCircle)
 
 Vue.use(VueMeta)
 

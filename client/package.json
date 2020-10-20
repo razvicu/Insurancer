@@ -21,6 +21,7 @@
     "pdf-template-parse": "0.0.5",
     "popper.js": "^1.16.1",
     "vue": "^2.6.11",
+    "vue-meta": "^2.4.0",
     "vue-router": "^3.4.5",
     "vue2-datepicker": "^3.6.2"
   },

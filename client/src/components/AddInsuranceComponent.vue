@@ -1,7 +1,13 @@
 <template>
  <div class="container">
+    <div class="__spacer"></div>
     <div class="text-center">
-        <h2>Incarca polita RCA</h2>
+        <div class="d-inline p-2"><p class="d-inline p-2 upload-rca">Incarca polita RCA</p></div>
+        <div class="d-inline p-2" v-on:mouseover="tooltipHover = true" v-on:mouseleave="tooltipHover = false"><font-awesome-icon icon="info-circle"></font-awesome-icon></div>
+        <span v-if="tooltipHover" class="tooltipText">Datele vor fi introduse automat in campurile de mai jos</span>
+    </div>
+    <div v-if="currentInsuranceFile" class="progress-bar">
+        <b-progress :value="fileUploadProgress" show-progress animated></b-progress>
     </div>
     <div class="container">
         <div class="insurance_upload">
@@ -18,9 +24,9 @@
     </div>
     <div class="__spacer"></div>
     <div class="text-center">
-        <h2>SAU</h2>
-        <h2>Completeaza manual datele</h2>
+        <h2>Sau completeaza manual datele</h2>
     </div>
+    <div class="__spacer"></div>
     <div class="container">
         <div class="insurance_type">
             <div class="form-group">
@@ -74,6 +80,9 @@ export default {
       error: "",
       responseMessage: "",
       requestSucceded: false,
+      tooltipHover: false,
+      currentInsuranceFile: undefined,
+      fileUploadProgress: 0,
       insuranceFileLabel: "Adauga un fisier",
       msg: {}
     }
@@ -103,9 +112,12 @@ export default {
         },
         async submitPdf() {
             let formData = new FormData();
-            let file = this.$refs['insuranceFile'].files[0];
-            formData.append('insuranceFile', file);
-            await InsuranceService.submitInsurancePdf(formData).then((res) => {
+            this.currentInsuranceFile = this.$refs['insuranceFile'].files[0];
+            formData.append('insuranceFile', this.currentInsuranceFile);
+            await InsuranceService.submitInsurancePdf(formData, event => {
+                console.log(event);
+                this.fileUploadProgress = Math.round(100 * event.loaded / event.total);
+            }).then((res) => {
                 console.log(res);
                 this.insuredName = res.data.name;
                 this.licensePlate = res.data.licenseNumber;
@@ -162,5 +174,21 @@ export default {
 }
 .alert {
     margin-top: 20px;
+}
+.progress-bar {
+    margin-bottom: 20px;
+}
+.upload-rca {
+    font-size: 200%;
+}
+
+.tooltipText {
+  width: 120px;
+  background-color: #007bff;
+  color: #fff;
+  padding: 5px 0;
+  border-radius: 6px;
+  position: absolute;
+  z-index: 2;
 }
 </style>

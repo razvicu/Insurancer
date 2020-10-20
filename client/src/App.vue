@@ -31,4 +31,8 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.__spacer {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
 </style>

@@ -1,5 +1,7 @@
 const fs = require('fs');
-const pdf = require('pdf-parse');
+const path = require('path');
+const pdf = require('pdf2json');
+
 
 const validators = require('./validators');
 const dbm = require('./dbmanager');
@@ -49,48 +51,37 @@ createInsurance = async (req, res, _) => {
 }
 
 parsePdfInsurance = async (req, res, _) => {
-    console.log(req.file);
-    let ans = await parsePdf(req.file.path);
-    res.send(ans);
+    parsePdf(req.file.path, (data) => res.send(data));
 };
 
-parsePdf = async (file) =>  {
-    let dataBuffer = fs.readFileSync(file);
+parsePdf = (file, sendDataCb) =>  {
+    let extension = path.extname(file);
+    if (extension != '.pdf') {
+        return JSON.stringify({error: `Expected pdf file, instead got ${extension} file`});
+    }
+
+    let pdfParser = new pdf();
     let ans = Object();
-
-    await pdf(dataBuffer).then((data) => {
-        data = data.text;
-
-        // Parsing telephone number
-        var phoneIdx = data.indexOf("Tel:");
-        var phoneNumber = data.substring(phoneIdx, phoneIdx + 15).split("\n");
-        phoneNumber = phoneNumber[1];
-
-        // Parsing owner's name
-        var nameIdx = data.indexOf("R1=");
-        nameIdx = data.indexOf("R1=", nameIdx + 1);
-        var ownerName = data.substring(nameIdx, nameIdx + 100).split("\n");
-        ownerName = ownerName[2];
-
-        // Parsing owner's license number
-        var licenseIdx = data.indexOf("R1=");
-        var licenseNumber = data.substring(licenseIdx - 1, licenseIdx - 15).split("\n");
-        licenseNumber = licenseNumber[licenseNumber.length - 1];
-
-        // Parsing expiration date
-        var expirationIdx = data.indexOf("servicii suplimentare:");
-        var expirationDate = data.substring(expirationIdx, expirationIdx + 101).split("\n");
-        expirationDate = expirationDate[6];
-
-        console.log("Phone: " + phoneNumber + " , ownerName: " + ownerName + " , licenseNumber: " + licenseNumber + 
-                    ", exp date: " + expirationDate);
-
+    let phoneNumber = "", ownerName = "", licenseNumber = "", expirationDate = "";
+    pdfParser.loadPDF(file);
+    pdfParser.on("pdfParser_dataReady", pdfData => {
+        pdfData.formImage.Pages[0].Texts.forEach(el => {
+            if (el.x == 8.114 && el.y == 36.505 && el.w == 50.04) {
+                phoneNumber = el.R[0].T;
+            }
+            if (el.x == 8.101 && el.y == 29.696 && el.w == 70.002) {
+                ownerName = el.R[0].T.replace(/%20/g, " ");
+            }
+            if (el.x == 29.166 && el.y == 31.246 && el.w == 42.507) {
+                licenseNumber = el.R[0].T;
+            }
+            if (el.x == 14.293 && el.y == 39.417 && el.w == 50.04) {
+                expirationDate = el.R[0].T;
+            }
+        });
         ans = JSON.stringify({name: ownerName, licenseNumber: licenseNumber, phoneNumber: phoneNumber, expDate: expirationDate});
-    }).catch((err) => console.log(err));
-
-    console.log(ans);
-
-    return ans;
+        sendDataCb(ans);
+    });
 }
 
 editInsurance = async (req, res, _) => {

@@ -9,11 +9,11 @@ The user can either upload a PDF file with the insurance and the fields will be 
 
 The list of all insurances is also displayed, each one supporting modification of the saved data or its removal.
 
-![Adding an insurance](readme_assets/list_insurances.png)
+![Listing all insurances](readme_assets/list_insurances.png)
 
 When an insurance is about to be edited, a modal pops out and asks the user to edit the existing data.
 
-![Adding an insurance](readme_assets/edit_insurance.png)
+![Editing an insurance](readme_assets/edit_insurance.png)
 
 Currently, the entered data is stored in a MySQL database, on an EC2 instance. The server is kept up and running via [pm2](https://pm2.keymetrics.io) and mails are sent with the help of [nodemailer](https://nodemailer.com/usage/).
 

@@ -55,11 +55,12 @@ parsePdfInsurance = async (req, res, _) => {
 };
 
 parsePdf = (file, sendDataCb) =>  {
+    console.log("Inside parsePdf");
     let extension = path.extname(file);
     if (extension != '.pdf') {
-        return JSON.stringify({error: `Expected pdf file, instead got ${extension} file`});
+        sendDataCb(JSON.stringify({error: `Expected pdf file, instead got ${extension} file`}));
+        return;
     }
-
     let pdfParser = new pdf();
     let ans = Object();
     let phoneNumber = "", ownerName = "", licenseNumber = "", expirationDate = "";

@@ -3,6 +3,11 @@
     <div class="__spacer"></div>
     <div class="text-center">
         <div class="d-inline p-2"><p class="d-inline p-2 upload-rca">Incarca polita RCA</p></div>
+        <div v-if="parseInsuranceResponseMessage.length">
+            <div class="alert" v-bind:class="{'alert-success': requestSucceded, 'alert-danger': !requestSucceded}">
+                {{ parseInsuranceResponseMessage }}
+            </div>
+        </div>
         <div class="d-inline p-2" v-on:mouseover="tooltipHover = true" v-on:mouseleave="tooltipHover = false"><font-awesome-icon icon="info-circle"></font-awesome-icon></div>
         <span v-if="tooltipHover" class="tooltipText">Datele vor fi introduse automat in campurile de mai jos</span>
     </div>
@@ -55,9 +60,9 @@
                 <button v-on:click="submitInsurance" type="submit" class="btn btn-primary">Salveaza</button>
             </div>
         </div>
-        <div v-if="responseMessage.length">
+        <div v-if="saveInsuranceResponseMessage.length">
             <div class="alert" v-bind:class="{'alert-success': requestSucceded, 'alert-danger': !requestSucceded}">
-                {{ responseMessage }}
+                {{ saveInsuranceResponseMessage }}
             </div>
         </div>
     </div>
@@ -78,7 +83,8 @@ export default {
       phoneNumber: "",
       requestCompleted: false,
       error: "",
-      responseMessage: "",
+      saveInsuranceResponseMessage: "",
+      parseInsuranceResponseMessage: "",
       requestSucceded: false,
       tooltipHover: false,
       currentInsuranceFile: undefined,
@@ -115,14 +121,24 @@ export default {
             this.currentInsuranceFile = this.$refs['insuranceFile'].files[0];
             formData.append('insuranceFile', this.currentInsuranceFile);
             await InsuranceService.submitInsurancePdf(formData, event => {
-                console.log(event);
                 this.fileUploadProgress = Math.round(100 * event.loaded / event.total);
             }).then((res) => {
+                res = res.data;
+                if (res.error) {
+                    this.displayInsuranceParseMessage(false, "Fisierul introdus nu este pdf!", 3000);
+                    return;
+                }
                 console.log(res);
-                this.insuredName = res.data.name;
-                this.licensePlate = res.data.licenseNumber;
-                this.phoneNumber = res.data.phoneNumber;
-                this.expirationDate = res.data.expDate.split('.').reverse().join('-');
+                if (res.name && res.licenseNumber && res.phoneNumber && res.expDate) {
+                    this.insuredName = res.name;
+                    this.licensePlate = res.licenseNumber;
+                    this.phoneNumber = res.phoneNumber;
+                    this.expirationDate = res.expDate.split('.').reverse().join('-');
+                    this.displayInsuranceParseMessage(true, "Datele din asigurare au fost completate!", 3000);
+                    return;
+                }
+                this.displayInsuranceParseMessage(false, "Nu s-au putut citi toate datele din asigurare!", 3000);
+
             })
             .catch((err) => {
                 console.log(err);
@@ -139,7 +155,7 @@ export default {
           let shouldReturn = false;
           Object.keys(insurance).forEach((key) => {
               if (!insurance[key].length || this.msg[key]) {
-                this.displayMessage(false, "Datele introduse nu sunt complete!", 3000);
+                this.displayInsuranceSaveMessage(false, "Datele introduse nu sunt complete!", 3000);
                 shouldReturn = true;
                 return; 
               }
@@ -150,18 +166,26 @@ export default {
           await InsuranceService.submitInsurance(insurance).then((res) => {
             if (res.status == 200) {
                 console.log(res);
-                this.displayMessage(true, res.data, 3000);
+                this.displayInsuranceSaveMessage(true, res.data, 3000);
             } 
             }).catch((err) => {
                 console.log(err);
-                this.displayMessage(false, "A aparut o problema la salvarea datelor!", 3000);
+                this.displayInsuranceSaveMessage(false, "A aparut o problema la salvarea datelor!", 3000);
             });
         },
-        displayMessage(reqSucceeded, resMessage, timeOut) {
+        displayInsuranceSaveMessage(reqSucceeded, resMessage, timeOut) {
             this.requestSucceded = reqSucceeded;
-            this.responseMessage = resMessage;
+            this.saveInsuranceResponseMessage = resMessage;
             setTimeout(() => {
-                this.responseMessage = "";
+                this.saveInsuranceResponseMessage = "";
+            }, timeOut);
+        },
+        displayInsuranceParseMessage(reqSucceeded, resMessage, timeOut) {
+            this.requestSucceded = reqSucceeded;
+            this.parseInsuranceResponseMessage = resMessage;
+            setTimeout(() => {
+                this.parseInsuranceResponseMessage = "";
+                this.currentInsuranceFile = undefined;
             }, timeOut);
         }
   }
